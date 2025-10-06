@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Меню Кафе</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Наше Меню</h1>
+
+        <div class="item">
+            <h2>Хот-дог Классический (7сом.)</h2>
+            <div class="controls">
+                <button class="btn" onclick="changeQuantity('hotdog', -1)">-</button>
+                <span id="hotdog-quantity">0</span>
+                <button class="btn" onclick="changeQuantity('hotdog', 1)">+</button>
+            </div>
+        </div>
+
+        <div class="item">
+            <h2>Шаурма с курицей (15сом.)</h2>
+            <div class="controls">
+                <button class="btn" onclick="changeQuantity('shaurma', -1)">-</button>
+                <span id="shaurma-quantity">0</span>
+                <button class="btn" onclick="changeQuantity('shaurma', 1)">+</button>
+            </div>
+        </div>
+        
+        <hr>
+
+        <h2>Ваши данные</h2>
+        <form id="order-form">
+            <input type="text" id="user_name" placeholder="Ваше имя" required>
+            <input type="tel" id="user_phone" placeholder="Ваш номер телефона" required>
+            <textarea id="user_comment" placeholder="Комментарий к заказу (необязательно)"></textarea>
+        </form>
+
+        <button id="order-btn" class="main-btn">Оформить заказ</button>
+    </div>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
