@@ -2,55 +2,92 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Mind Map Editor</title>
+  
+  <!-- Библиотека Mind-elixir -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mind-elixir/dist/style.css">
   <script src="https://cdn.jsdelivr.net/npm/mind-elixir"></script>
+  
   <style>
-    #map { width: 100vw; height: 100vh; }
-    .controls { position: fixed; bottom: 20px; right: 20px; z-index: 100; }
+    body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+    #map { 
+        width: 100vw; 
+        height: 90vh; /* Оставляем место под кнопку снизу */
+        background: #f7f7f7;
+    }
+    .bottom-bar {
+        height: 10vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: #fff;
+        border-top: 1px solid #ccc;
+    }
+    button {
+        padding: 10px 25px;
+        background: #0088cc;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+    }
+    /* Инструкция поверх карты */
+    .hint {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        background: rgba(0,0,0,0.6);
+        color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 12px;
+        pointer-events: none;
+    }
   </style>
 </head>
 <body>
-  <div id="map"></div>
 
-  <div class="controls">
-    <button onclick="saveData()">Сохранить</button>
+  <div class="hint">Удержание на узле — меню | Тяните за фон — навигация</div>
+  <div id="map"></div>
+  
+  <div class="bottom-bar">
+    <button onclick="saveData()">СОХРАНИТЬ ИЗМЕНЕНИЯ</button>
   </div>
 
   <script>
-    // Начальные данные (пустая центральная тема)
-    const initialData = {
+    const options = {
+      el: '#map',
+      direction: MindElixir.SIDE,
+      // Включаем все инструменты управления
+      draggable: true, 
+      contextMenu: true, 
+      toolBar: true, 
+      nodeMenu: true, 
+      keypress: true,
+      locale: 'ru'
+    };
+
+    const mind = new MindElixir(options);
+
+    // Начальные данные с одним узлом
+    const data = {
       nodeData: {
         id: 'root',
-        topic: 'Центральная тема',
+        topic: 'Нажми на меня',
         root: true,
         children: []
       }
     };
 
-    const mind = new MindElixir({
-      el: '#map',
-      direction: MindElixir.SIDE,
-      data: initialData,
-      draggable: true,
-      contextMenu: true, // Включает меню для редактирования веток
-      toolBar: true,
-      nodeMenu: true,
-    });
+    mind.init(data);
 
-    mind.init();
-
-    // Функция для сворачивания всех узлов при запуске
-    // В Mind-elixir управление отображением происходит через данные
-
-    // Интеграция с Telegram Web Apps
+    // Интеграция с Telegram
     const tg = window.Telegram.WebApp;
     tg.expand();
 
     function saveData() {
       const fullData = mind.getAllData();
-      // Отправляем данные обратно в бота
       tg.sendData(JSON.stringify(fullData));
     }
   </script>
