@@ -1,46 +1,58 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Меню Кафе</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mind Map Editor</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mind-elixir/dist/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/mind-elixir"></script>
+  <style>
+    #map { width: 100vw; height: 100vh; }
+    .controls { position: fixed; bottom: 20px; right: 20px; z-index: 100; }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Наше Меню</h1>
+  <div id="map"></div>
 
-        <div class="item">
-            <h2>Хот-дог Классический (7сом.)</h2>
-            <div class="controls">
-                <button class="btn" onclick="changeQuantity('hotdog', -1)">-</button>
-                <span id="hotdog-quantity">0</span>
-                <button class="btn" onclick="changeQuantity('hotdog', 1)">+</button>
-            </div>
-        </div>
+  <div class="controls">
+    <button onclick="saveData()">Сохранить</button>
+  </div>
 
-        <div class="item">
-            <h2>Шаурма с курицей (15сом.)</h2>
-            <div class="controls">
-                <button class="btn" onclick="changeQuantity('shaurma', -1)">-</button>
-                <span id="shaurma-quantity">0</span>
-                <button class="btn" onclick="changeQuantity('shaurma', 1)">+</button>
-            </div>
-        </div>
-        
-        <hr>
+  <script>
+    // Начальные данные (пустая центральная тема)
+    const initialData = {
+      nodeData: {
+        id: 'root',
+        topic: 'Центральная тема',
+        root: true,
+        children: []
+      }
+    };
 
-        <h2>Ваши данные</h2>
-        <form id="order-form">
-            <input type="text" id="user_name" placeholder="Ваше имя" required>
-            <input type="tel" id="user_phone" placeholder="Ваш номер телефона" required>
-            <textarea id="user_comment" placeholder="Комментарий к заказу (необязательно)"></textarea>
-        </form>
+    const mind = new MindElixir({
+      el: '#map',
+      direction: MindElixir.SIDE,
+      data: initialData,
+      draggable: true,
+      contextMenu: true, // Включает меню для редактирования веток
+      toolBar: true,
+      nodeMenu: true,
+    });
 
-        <button id="order-btn" class="main-btn">Оформить заказ</button>
-    </div>
+    mind.init();
 
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="script.js"></script>
+    // Функция для сворачивания всех узлов при запуске
+    // В Mind-elixir управление отображением происходит через данные
+
+    // Интеграция с Telegram Web Apps
+    const tg = window.Telegram.WebApp;
+    tg.expand();
+
+    function saveData() {
+      const fullData = mind.getAllData();
+      // Отправляем данные обратно в бота
+      tg.sendData(JSON.stringify(fullData));
+    }
+  </script>
 </body>
 </html>
