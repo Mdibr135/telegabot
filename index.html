@@ -3,92 +3,108 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Mind Map Editor</title>
-  
-  <!-- Библиотека Mind-elixir -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mind-elixir/dist/style.css">
-  <script src="https://cdn.jsdelivr.net/npm/mind-elixir"></script>
-  
+  <title>Mind Map</title>
+
+  <!-- Используем стабильную версию с проверенного CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mind-elixir@0.18.1/dist/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/mind-elixir@0.18.1/dist/mind-elixir.js"></script>
+
   <style>
-    body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; }
-    #map { 
-        width: 100vw; 
-        height: 90vh; /* Оставляем место под кнопку снизу */
-        background: #f7f7f7;
+    body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #f0f0f0; }
+    /* Важно: четко задаем размеры контейнера */
+    #map {
+        width: 100vw;
+        height: 85vh;
+        display: block;
+        background: #ffffff;
     }
     .bottom-bar {
-        height: 10vh;
+        height: 15vh;
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
+        gap: 5px;
         background: #fff;
-        border-top: 1px solid #ccc;
+        border-top: 2px solid #0088cc;
     }
     button {
-        padding: 10px 25px;
+        padding: 12px 30px;
         background: #0088cc;
         color: white;
         border: none;
-        border-radius: 8px;
-        font-weight: bold;
+        border-radius: 20px;
+        font-size: 16px;
+        cursor: pointer;
     }
-    /* Инструкция поверх карты */
-    .hint {
-        position: fixed;
-        top: 10px;
-        left: 10px;
-        background: rgba(0,0,0,0.6);
-        color: white;
-        padding: 5px 10px;
-        border-radius: 5px;
-        font-size: 12px;
-        pointer-events: none;
-    }
+    .info { font-size: 10px; color: #666; }
   </style>
 </head>
 <body>
 
-  <div class="hint">Удержание на узле — меню | Тяните за фон — навигация</div>
   <div id="map"></div>
-  
+
   <div class="bottom-bar">
-    <button onclick="saveData()">СОХРАНИТЬ ИЗМЕНЕНИЯ</button>
+    <button onclick="saveData()">СОХРАНИТЬ</button>
+    <div class="info">Инструкция: Долгий тап на узле — меню | Двойной тап — текст</div>
   </div>
 
   <script>
-    const options = {
-      el: '#map',
-      direction: MindElixir.SIDE,
-      // Включаем все инструменты управления
-      draggable: true, 
-      contextMenu: true, 
-      toolBar: true, 
-      nodeMenu: true, 
-      keypress: true,
-      locale: 'ru'
-    };
+    try {
+      // 1. Создаем объект данных строго по документации
+      const mapData = {
+        nodeData: {
+          id: 'root_node',
+          topic: 'Главная тема',
+          root: true,
+          children: [
+            { id: 'child1', topic: 'Ветка 1 (нажми)', children: [] },
+            { id: 'child2', topic: 'Ветка 2', children: [] }
+          ]
+        }
+      };
 
-    const mind = new MindElixir(options);
+      // 2. Настраиваем опции
+      const options = {
+        el: '#map',
+        direction: 1, // MindElixir.SIDE = 1
+        data: mapData,
+        draggable: true,
+        contextMenu: true,
+        toolBar: true,
+        nodeMenu: true,
+        keypress: true
+      };
 
-    // Начальные данные с одним узлом
-    const data = {
-      nodeData: {
-        id: 'root',
-        topic: 'Нажми на меня',
-        root: true,
-        children: []
-      }
-    };
+      // 3. Инициализация
+      const mind = new MindElixir(options);
+      mind.init();
 
-    mind.init(data);
+      // Центрируем карту
+      setTimeout(() => {
+          mind.getAllData(); // Проверка работоспособности
+      }, 500);
+
+    } catch (e) {
+      // Если что-то пошло не так, мы увидим ошибку на экране телефона
+      document.getElementById('map').innerHTML = '<p style="color:red; padding: 20px;">Ошибка загрузки карты: ' + e.message + '</p>';
+    }
 
     // Интеграция с Telegram
     const tg = window.Telegram.WebApp;
-    tg.expand();
+    if (tg) {
+        tg.expand();
+        tg.ready();
+    }
 
     function saveData() {
-      const fullData = mind.getAllData();
-      tg.sendData(JSON.stringify(fullData));
+      const result = mind.getAllData();
+      if (tg && tg.sendData) {
+          tg.sendData(JSON.stringify(result));
+      } else {
+          console.log("Результат:", result);
+          alert("Данные выведены в консоль (вне Telegram)");
+      }
     }
   </script>
 </body>
