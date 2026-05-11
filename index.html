@@ -32,7 +32,7 @@ tg.expand();
 // Получаем ID пользователя из Telegram
 const userId = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : 12345;
 // Замените URL на адрес вашего сервера (например, через ngrok или IP вашего VPS)
-const API_URL = `https://your-server-address.com/api/stats/${userId}`;
+const API_URL = `http://0.0.0.0:8000/api/stats/${userId}`;
 
 async function loadData() {
     try {
