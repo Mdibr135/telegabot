@@ -1,111 +1,84 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Mind Map</title>
-
-  <!-- Используем стабильную версию с проверенного CDN -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mind-elixir@0.18.1/dist/style.css">
-  <script src="https://cdn.jsdelivr.net/npm/mind-elixir@0.18.1/dist/mind-elixir.js"></script>
-
-  <style>
-    body, html { margin: 0; padding: 0; height: 100%; width: 100%; background: #f0f0f0; }
-    /* Важно: четко задаем размеры контейнера */
-    #map {
-        width: 100vw;
-        height: 85vh;
-        display: block;
-        background: #ffffff;
-    }
-    .bottom-bar {
-        height: 15vh;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        gap: 5px;
-        background: #fff;
-        border-top: 2px solid #0088cc;
-    }
-    button {
-        padding: 12px 30px;
-        background: #0088cc;
-        color: white;
-        border: none;
-        border-radius: 20px;
-        font-size: 16px;
-        cursor: pointer;
-    }
-    .info { font-size: 10px; color: #666; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Бизнес Аналитика</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; margin: 0; padding: 15px; }
+        .header { background: #0088cc; color: white; padding: 20px; border-radius: 15px; text-align: center; margin-bottom: 20px; }
+        .card { background: white; border-radius: 15px; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        h1 { margin: 0; font-size: 20px; }
+        .total { font-size: 32px; font-weight: bold; margin: 10px 0; }
+    </style>
 </head>
 <body>
 
-  <div id="map"></div>
+    <div class="header">
+        <h1>Выручка (сомони)</h1>
+        <div class="total" id="total_sum">0.00</div>
+    </div>
 
-  <div class="bottom-bar">
-    <button onclick="saveData()">СОХРАНИТЬ</button>
-    <div class="info">Инструкция: Долгий тап на узле — меню | Двойной тап — текст</div>
-  </div>
+    <div class="card">
+        <canvas id="businessChart"></canvas>
+    </div>
 
-  <script>
+    <script>
+        const tg = window.Telegram.WebApp;
+tg.expand();
+
+// Получаем ID пользователя из Telegram
+const userId = tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : 12345;
+// Замените URL на адрес вашего сервера (например, через ngrok или IP вашего VPS)
+const API_URL = `https://your-server-address.com/api/stats/${userId}`;
+
+async function loadData() {
     try {
-      // 1. Создаем объект данных строго по документации
-      const mapData = {
-        nodeData: {
-          id: 'root_node',
-          topic: 'Главная тема',
-          root: true,
-          children: [
-            { id: 'child1', topic: 'Ветка 1 (нажми)', children: [] },
-            { id: 'child2', topic: 'Ветка 2', children: [] }
-          ]
+        const response = await fetch(API_URL);
+        const data = await response.json();
+
+        if (data.error) {
+            console.error("Ошибка API:", data.error);
+            return;
         }
-      };
 
-      // 2. Настраиваем опции
-      const options = {
-        el: '#map',
-        direction: 1, // MindElixir.SIDE = 1
-        data: mapData,
-        draggable: true,
-        contextMenu: true,
-        toolBar: true,
-        nodeMenu: true,
-        keypress: true
-      };
+        // Обновляем общую сумму на экране
+        const total = data.values.reduce((a, b) => a + b, 0);
+        document.getElementById('total_sum').innerText = total.toFixed(2);
 
-      // 3. Инициализация
-      const mind = new MindElixir(options);
-      mind.init();
-
-      // Центрируем карту
-      setTimeout(() => {
-          mind.getAllData(); // Проверка работоспособности
-      }, 500);
-
+        // Рисуем график
+        renderChart(data.labels, data.values);
     } catch (e) {
-      // Если что-то пошло не так, мы увидим ошибку на экране телефона
-      document.getElementById('map').innerHTML = '<p style="color:red; padding: 20px;">Ошибка загрузки карты: ' + e.message + '</p>';
+        console.error("Не удалось загрузить данные", e);
     }
+}
 
-    // Интеграция с Telegram
-    const tg = window.Telegram.WebApp;
-    if (tg) {
-        tg.expand();
-        tg.ready();
-    }
+function renderChart(labels, values) {
+    const ctx = document.getElementById('businessChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Выручка (сомони)',
+                data: values,
+                backgroundColor: '#0088cc',
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+}
 
-    function saveData() {
-      const result = mind.getAllData();
-      if (tg && tg.sendData) {
-          tg.sendData(JSON.stringify(result));
-      } else {
-          console.log("Результат:", result);
-          alert("Данные выведены в консоль (вне Telegram)");
-      }
-    }
-  </script>
+// Запускаем загрузку
+loadData();
+    </script>
 </body>
 </html>
