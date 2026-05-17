@@ -1,4 +1,6 @@
 from aiogram import Bot
+import os
+from dotenv import load_dotenv
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,6 +11,7 @@ from typing import List, Optional
 
 from app.database import init_db, get_db
 from app.models import User, Trip
+
 
 app = FastAPI(title="Попутчик Таджикистан API")
 
