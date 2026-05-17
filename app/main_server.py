@@ -193,20 +193,19 @@ async def create_booking(booking_data: BookingCreateSchema, db: AsyncSession = D
         ])
 
         notification_text = (
-            f"🔔 *Новая заявка на поездку!*\n\n"
+            f"🔔 <b>Новая заявка на поездку!</b>\n\n"
             f"👤 Пассажир: {passenger.first_name} (@{passenger.username or 'нет'})\n"
             f"🚗 Маршрут: {trip.from_city} → {trip.to_city}\n"
             f"💰 Цена: {trip.price_per_seat} сомони\n"
             f"🚘 Машина/Комментарий: {trip.comment or 'нет'}\n\n"
-            f"Вы согласны взять этого попутчика?"
-        )
+            f"Вы согласны взять этого попутчика?")
 
         await bot_client.send_message(
             chat_id=trip.driver_id, 
             text=notification_text, 
-            parse_mode="Markdown", 
-            reply_markup=keyboard
-        )
+            parse_mode="HTML", # Переключили на HTML
+            reply_markup=keyboard)
+        
     except Exception as e:
         print(f"Ошибка отправки уведомления ботом: {e}")
 
@@ -253,7 +252,7 @@ async def confirm_booking(booking_id: int, db: AsyncSession = Depends(get_db)):
             f"💵 Стоимость: {trip.price_per_seat} TJS\n"
             f"📉 Свободных мест в машине осталось: {trip.available_seats}"
         )
-        await bot_client.send_message(chat_id=booking.passenger_id, text=success_text, parse_mode="Markdown")
+        await bot_client.send_message(chat_id=booking.passenger_id, text=success_text, parse_mode="HTML")
     except Exception as e:
         print(f"Не удалось отправить уведомление пассажиру: {e}")
 
