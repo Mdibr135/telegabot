@@ -12,8 +12,12 @@ from typing import List, Optional
 from app.database import init_db, get_db
 from app.models import User, Trip
 
+load_dotenv()
+
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 
 app = FastAPI(title="Попутчик Таджикистан API")
+
 
 # Разрешаем доступ к API с любых устройств (нужно для работы внутри Telegram)
 app.add_middleware(
