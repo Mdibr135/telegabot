@@ -1,4 +1,5 @@
 import os
+from dotenv import load_dotenv
 from datetime import datetime, date
 from typing import List, Optional
 from pydantic import BaseModel
