@@ -7,7 +7,7 @@ def run_backend():
     # Укажите импорт вашего приложения. Например, если в api.py у вас app = FastAPI()
     # uvicorn.run("api:app", host="0.0.0.0", port=int(os.getenv("PORT", 10000)))
     print("Запуск бэкенда...")
-    os.system("uvicorn app.main:app --reload)
+    os.system("uvicorn app.main_server:app --reload)
 
 def run_bot():
     print("Запуск Telegram-бота...")
