@@ -5,3 +5,4 @@ aiosqlite==0.20.0
 pydantic==2.10.6
 pydantic-core==2.27.2
 aiohttp==3.9.3
+python-dotenv>=1.0.0
