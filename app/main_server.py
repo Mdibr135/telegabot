@@ -15,6 +15,10 @@ from app.models import User, Trip
 load_dotenv()
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+bot_client = Bot(token=TELEGRAM_TOKEN)
+dp = Dispatcher()
+
+
 
 app = FastAPI(title="Попутчик Таджикистан API")
 
