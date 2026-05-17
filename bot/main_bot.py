@@ -90,7 +90,7 @@ async def handle_confirm_booking(callback: types.CallbackQuery):
     # Отправляем запрос на бэкенд, чтобы подтвердить бронь и вычесть место
     async with aiohttp.ClientSession() as session:
         try:
-            async with session.patch(f"{BACKEND_BASE_URL}/bookings/{booking_id}/confirm") as response:
+            async with session.patch(f"{BACKEND_URL}/bookings/{booking_id}/confirm") as response:
                 if response.status == 200:
                     data = await response.json()
                     
@@ -117,7 +117,7 @@ async def handle_reject_booking(callback: types.CallbackQuery):
     
     async with aiohttp.ClientSession() as session:
         try:
-            async with session.patch(f"{BACKEND_BASE_URL}/bookings/{booking_id}/reject") as response:
+            async with session.patch(f"{BACKEND_URL}/bookings/{booking_id}/reject") as response:
                 if response.status == 200:
                     await callback.message.edit_text(
                         text=callback.message.text + "\n\n🔴 *Вы отклонили эту заявку. Пассажиру отправлен отказ.*",
