@@ -59,7 +59,7 @@ async def cmd_start(message: types.Message):
 
     # Пока у нас нет готового фронтенда, мы временно подключим официальный демо-сайт
     # чтобы проверить, как открывается встроенный браузер в Telegram
-    demo_web_app_url = "https://telegram.org/js/telegram-web-app.js"
+    demo_web_app_url = "https://mdibr135.github.io/telegabot/"
     # Примечание: Для реального теста мы можем использовать любой рабочий сайт, например "https://google.com"
 
     kb.row(
