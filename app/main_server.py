@@ -82,7 +82,7 @@ class BookingCreateSchema(BaseModel):
 
 # 1. Регистрация или обновление профиля пользователя
 # Тестовый эндпоинт проверки здоровья сервера (Health Check)
-@app.api_route("/", methods=["GET", "HEAD"])
+@app.api_route("/", methods=["GET", "HEAD", "POST"])
 async def root():
     return {"status": "working", "message": "API сервиса Попутчик готово к работе."}
 
