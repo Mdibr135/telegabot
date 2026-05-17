@@ -1,3 +1,5 @@
+import os
+from dotenv import load_dotenv
 import asyncio
 import logging
 import aiohttp
@@ -6,7 +8,9 @@ from aiogram.filters import CommandStart
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 # Токен твоего бота
-BOT_TOKEN = "8531071849:AAFeMtgr3yLkq8OS2-SDbecdO9RuMRENWQ4"
+load_dotenv()
+
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 
 # Адрес нашего запущенного бэкенда (FastAPI)
 # Пока тестируем локально, адрес такой. Когда выложим в интернет, поменяем на домен.
