@@ -19,7 +19,7 @@ BACKEND_URL = "https://telegabot-77m2.onrender.com/users/"
 # Настраиваем логирование, чтобы видеть в терминале, если что-то пойдет не так
 logging.basicConfig(level=logging.INFO)
 
-bot = Bot(token=BOT_TOKEN)
+bot = Bot(token=TELEGRAM_TOKEN)
 dp = Dispatcher()
 
 
