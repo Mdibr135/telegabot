@@ -6,3 +6,4 @@ pydantic==2.10.6
 pydantic-core==2.27.2
 aiohttp==3.9.3
 python-dotenv>=1.0.0
+aiogram>=3.0.0
