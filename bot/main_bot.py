@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 import asyncio
 import logging
 import aiohttp
-from aiogram import Bot, Dispatcher, types
+from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import CommandStart
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
@@ -80,6 +80,55 @@ async def cmd_start(message: types.Message):
 
     await message.answer(welcome_text, reply_markup=kb.as_markup(), parse_mode="Markdown")
 
+# 1. Водитель нажал «Согласиться»
+# Фильтр F.data.startswith("confirm_") ловит колбэки вроде "confirm_12"
+@dp.callback_query(F.data.startswith("confirm_"))
+async def handle_confirm_booking(callback: types.CallbackQuery):
+    # Вытаскиваем ID бронирования из даты кнопки (все, что после нижнего подчеркивания)
+    booking_id = callback.data.split("_")[1]
+    
+    # Отправляем запрос на бэкенд, чтобы подтвердить бронь и вычесть место
+    async with aiohttp.ClientSession() as session:
+        try:
+            async with session.patch(f"{BACKEND_BASE_URL}/bookings/{booking_id}/confirm") as response:
+                if response.status == 200:
+                    data = await response.json()
+                    
+                    # Если бэкенд ответил, что всё ок, меняем текст у водителя
+                    await callback.message.edit_text(
+                        text=callback.message.text + "\n\n🟢 *Вы одобрили эту заявку! Пассажир уведомлен.*",
+                        parse_mode="Markdown",
+                        reply_markup=None # Удаляем инлайн-кнопки, чтобы нельзя было нажать дважды
+                    )
+                elif response.status == 400:
+                    await callback.answer("Ошибка: Свободных мест больше нет!", show_alert=True)
+                    await callback.message.edit_text(callback.message.text + "\n\n❌ *Места закончились, заявка отклонена.*", reply_markup=None)
+                else:
+                    await callback.answer("Произошла ошибка на сервере.", show_alert=True)
+        except Exception as e:
+            logging.error(f"Ошибка при подтверждении брони: {e}")
+            await callback.answer("Не удалось связаться с сервером.", show_alert=True)
+
+
+# 2. Водитель нажал «Отказать»
+@dp.callback_query(F.data.startswith("reject_"))
+async def handle_reject_booking(callback: types.CallbackQuery):
+    booking_id = callback.data.split("_")[1]
+    
+    async with aiohttp.ClientSession() as session:
+        try:
+            async with session.patch(f"{BACKEND_BASE_URL}/bookings/{booking_id}/reject") as response:
+                if response.status == 200:
+                    await callback.message.edit_text(
+                        text=callback.message.text + "\n\n🔴 *Вы отклонили эту заявку. Пассажиру отправлен отказ.*",
+                        parse_mode="Markdown",
+                        reply_markup=None
+                    )
+                else:
+                    await callback.answer("Произошла ошибка на сервере.", show_alert=True)
+        except Exception as e:
+            logging.error(f"Ошибка при отклонении брони: {e}")
+            await callback.answer("Не удалось связаться с сервером.", show_alert=True)
 
 # Главная функция запуска бота
 async def main():
