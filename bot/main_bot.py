@@ -14,7 +14,7 @@ TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
 
 # Адрес нашего запущенного бэкенда (FastAPI)
 # Пока тестируем локально, адрес такой. Когда выложим в интернет, поменяем на домен.
-BACKEND_URL = "https://telegabot-77m2.onrender.com/users/"
+BACKEND_URL = "https://telegabot-77m2.onrender.com"
 
 # Настраиваем логирование, чтобы видеть в терминале, если что-то пойдет не так
 logging.basicConfig(level=logging.INFO)
